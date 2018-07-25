@@ -3,10 +3,12 @@ use Test;
 
 use Hash::Restricted;
 
-plan 2 * 15;
+plan 2 + 2 * 15;
 
-my %h1 is restricted      = a => 42, b => 666;
-my %h2 is restricted<a b> = a => 42, b => 666;
+is-deeply (my %h1 is restricted = a => 42, b => 666), %h1,
+  'does STORE return self';
+is-deeply (my %h2 is restricted<a b> = a => 42, b => 666), %h2,
+  'does STORE return self';
 
 for %h1, %h2 -> %h {
     ok %h.^name.ends-with('(restricted)'), 'is the name changed ok';

@@ -10,7 +10,7 @@ my %EXPORT;
 # all of the trait_mod:<is>'s that cannot be handled here.
 BEGIN my $original_trait_mod_is = &trait_mod:<is>;
 
-module Hash::Restricted:ver<0.0.2>:auth<cpan:ELIZABETH> {
+module Hash::Restricted:ver<0.0.3>:auth<cpan:ELIZABETH> {
 
     sub nono($what, \map, \keys) is hidden-from-backtrace {
         die "Not allowed to $what {map.VAR.name}<{keys}>";
@@ -47,6 +47,7 @@ module Hash::Restricted:ver<0.0.2>:auth<cpan:ELIZABETH> {
                     nono("store",self,$extra.keys)
                 }
             }
+            self
         }
     }
 
@@ -73,6 +74,7 @@ module Hash::Restricted:ver<0.0.2>:auth<cpan:ELIZABETH> {
                 self{$extra.keys}:delete;
                 nono("store",self,$extra.keys)
             }
+            self
         }
     }
 
