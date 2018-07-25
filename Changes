@@ -2,5 +2,8 @@ Revision history for Hash-Restricted
 
 {{$NEXT}}
 
+0.0.2  2018-07-25T11:04:38+02:00
+    - Fixed source-url in pod
+
 0.0.1  2018-07-19T13:51:26+02:00
     - Initial version

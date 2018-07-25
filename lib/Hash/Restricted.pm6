@@ -10,7 +10,7 @@ my %EXPORT;
 # all of the trait_mod:<is>'s that cannot be handled here.
 BEGIN my $original_trait_mod_is = &trait_mod:<is>;
 
-module Hash::Restricted:ver<0.0.1>:auth<cpan:ELIZABETH> {
+module Hash::Restricted:ver<0.0.2>:auth<cpan:ELIZABETH> {
 
     sub nono($what, \map, \keys) is hidden-from-backtrace {
         die "Not allowed to $what {map.VAR.name}<{keys}>";
@@ -135,13 +135,12 @@ keys that were specified when the C<Map> / C<Hash> was initialized.
 
 If you B<do> specify keys, then those will be the keys that will be allowed.
 
-
 =head1 AUTHOR
 
 Elizabeth Mattijsen <liz@wenzperl.nl>
 
-Source can be located at: https://github.com/lizmat/Hash-with . Comments and
-Pull Requests are welcome.
+Source can be located at: https://github.com/lizmat/Hash-Restricted .
+Comments and Pull Requests are welcome.
 
 =head1 COPYRIGHT AND LICENSE
 
