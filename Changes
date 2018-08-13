@@ -2,6 +2,9 @@ Revision history for Hash-Restricted
 
 {{$NEXT}}
 
+0.0.4  2018-08-13T15:46:20+01:00
+    - Version bump for workshop demonstration
+
 0.0.3  2018-07-25T11:21:09+02:00
     - .STORE must return self so it can be chained
 
