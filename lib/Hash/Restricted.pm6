@@ -36,9 +36,11 @@ module Hash::Restricted:ver<0.0.4>:auth<cpan:ELIZABETH> {
               ?? (nextsame)
               !! nono("create",self,key)
         }
-        method STORE(\to_store, :$initialize) is hidden-from-backtrace {
+        method STORE(
+          \to_store, :initialize(:$INITIALIZE)
+        ) is hidden-from-backtrace {
             callsame;
-            if $initialize {
+            if $INITIALIZE {
                 %!allowed = self.keys.map: * => True;
             }
             else {
