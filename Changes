@@ -2,6 +2,9 @@ Revision history for Hash-Restricted
 
 {{$NEXT}}
 
+0.0.5  2018-10-20T13:48:16+02:00
+    - Account for STORE initialize -> INITIALIZE change
+
 0.0.4  2018-08-13T15:46:20+01:00
     - Version bump for workshop demonstration
 
