@@ -1,16 +1,6 @@
 use v6.c;
 
-# Since we cannot export a proto sub trait_mod:<is> with "is export", we
-# need to do this manually with an EXPORT sub.  So we create a hash here
-# to be set in compilation of the mainline and then return that in the
-# EXPORT sub.
-my %EXPORT;
-
-# Save the original trait_mod:<is> candidates, so we can pass on through
-# all of the trait_mod:<is>'s that cannot be handled here.
-BEGIN my $original_trait_mod_is = &trait_mod:<is>;
-
-module Hash::Restricted:ver<0.0.5>:auth<cpan:ELIZABETH> {
+module Hash::Restricted:ver<0.0.6>:auth<cpan:ELIZABETH> {
 
     sub nono($what, \map, \keys) is hidden-from-backtrace {
         die "Not allowed to $what {map.VAR.name}<{keys}>";
@@ -80,11 +70,8 @@ module Hash::Restricted:ver<0.0.5>:auth<cpan:ELIZABETH> {
         }
     }
 
-    # Manually mark this proto for export
-    %EXPORT<&trait_mod:<is>> := proto sub trait_mod:<is>(|) {*}
-
     # Handle the "is restricted" / is restricted(Bool:D) cases
-    multi sub trait_mod:<is>(Variable:D \v, Bool:D :$restricted!) {
+    multi sub trait_mod:<is>(Variable:D \v, Bool:D :$restricted!) is export {
         die "Can only apply 'is restricted' on a Map, not a {v.var.WHAT}"
           unless v.var.WHAT ~~ Map;
         my $name = v.var.^name;
@@ -95,7 +82,7 @@ module Hash::Restricted:ver<0.0.5>:auth<cpan:ELIZABETH> {
     }
 
     # Handle the "is restricted<a b c>" case
-    multi sub trait_mod:<is>(Variable:D \v, :@restricted!) {
+    multi sub trait_mod:<is>(Variable:D \v, :@restricted!) is export {
         die "Can only apply 'is restricted' on a Map, not a {v.var.WHAT}"
           unless v.var.WHAT ~~ Map;
         my %restricted = @restricted.map: * => True;
@@ -103,12 +90,7 @@ module Hash::Restricted:ver<0.0.5>:auth<cpan:ELIZABETH> {
         trait_mod:<does>(v, restrict-given[%restricted]);
         v.var.WHAT.^set_name("$name\(restricted)");
     }
-
-    # Make sure we handle all of the standard traits correctly
-    multi sub trait_mod:<is>(|c) { $original_trait_mod_is(|c) }
 }
-
-sub EXPORT { %EXPORT }
 
 =begin pod
 
@@ -148,7 +130,7 @@ Comments and Pull Requests are welcome.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2018 Elizabeth Mattijsen
+Copyright 2018, 2020 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

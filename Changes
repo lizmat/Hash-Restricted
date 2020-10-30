@@ -2,6 +2,11 @@ Revision history for Hash-Restricted
 
 {{$NEXT}}
 
+0.0.6  2020-10-30T13:40:02+01:00
+    - Simplify exporting of trait candidates
+    - Add GitHub workflows testing
+    - Update copyright year
+
 0.0.5  2018-10-20T13:48:16+02:00
     - Account for STORE initialize -> INITIALIZE change
 
