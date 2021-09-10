@@ -1,6 +1,6 @@
-use v6.c;
+use v6.d;
 
-module Hash::Restricted:ver<0.0.6>:auth<cpan:ELIZABETH> {
+module Hash::Restricted:ver<0.0.7>:auth<zef:lizmat> {
 
     sub nono($what, \map, \keys) is hidden-from-backtrace {
         die "Not allowed to $what {map.VAR.name}<{keys}>";
@@ -123,17 +123,17 @@ If you B<do> specify keys, then those will be the keys that will be allowed.
 
 =head1 AUTHOR
 
-Elizabeth Mattijsen <liz@wenzperl.nl>
+Elizabeth Mattijsen <liz@raku.rocks>
 
 Source can be located at: https://github.com/lizmat/Hash-Restricted .
 Comments and Pull Requests are welcome.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2018, 2020 Elizabeth Mattijsen
+Copyright 2018, 2020, 2021 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
 =end pod
 
-# vim: ft=perl6 expandtab sw=4
+# vim: expandtab shiftwidth=4

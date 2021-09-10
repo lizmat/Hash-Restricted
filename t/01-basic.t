@@ -33,4 +33,4 @@ for %h1, %h2 -> %h {
     dies-ok { %h = c => 999 }, 'not allowed to store c';
 }
 
-# vim: ft=perl6 expandtab sw=4
+# vim: expandtab shiftwidth=4
