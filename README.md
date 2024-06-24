@@ -8,15 +8,17 @@ Hash::Restricted - trait for restricting keys in hashes
 SYNOPSIS
 ========
 
-    use Hash::Restricted;
+```raku
+use Hash::Restricted;
 
-    my %h is restricted = a => 42, b => 666;
-    %h<c> = 317;  # dies
+my %h is restricted = a => 42, b => 666;
+%h<c> = 317;  # dies
 
-    my %h is restricted<a b>;
-    %h<a> = 42;
-    %h<b> = 666;
-    %h<c> = 317;  # dies
+my %h is restricted<a b>;
+%h<a> = 42;
+%h<b> = 666;
+%h<c> = 317;  # dies
+```
 
 DESCRIPTION
 ===========
@@ -34,10 +36,12 @@ Elizabeth Mattijsen <liz@raku.rocks>
 
 Source can be located at: https://github.com/lizmat/Hash-Restricted . Comments and Pull Requests are welcome.
 
+If you like this module, or what I’m doing more generally, committing to a [small sponsorship](https://github.com/sponsors/lizmat/) would mean a great deal to me!
+
 COPYRIGHT AND LICENSE
 =====================
 
-Copyright 2018, 2020, 2021 Elizabeth Mattijsen
+Copyright 2018, 2020, 2021, 2024 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

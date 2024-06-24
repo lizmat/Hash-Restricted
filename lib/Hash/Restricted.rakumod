@@ -1,95 +1,92 @@
 use v6.d;
 
-module Hash::Restricted:ver<0.0.7>:auth<zef:lizmat> {
+my sub nono($what, \map, \keys) is hidden-from-backtrace {
+    die "Not allowed to $what {map.VAR.name}<{keys}>";
+}
 
-    sub nono($what, \map, \keys) is hidden-from-backtrace {
-        die "Not allowed to $what {map.VAR.name}<{keys}>";
+# The role to be applied if not a specific set of keys was given.
+# This will set the allowable keys after the first initialization.
+my role restrict-current {
+    has %!allowed;
+
+    method AT-KEY(::?CLASS:D: \key) is hidden-from-backtrace {
+        %!allowed.EXISTS-KEY(key)
+          ?? (nextsame)
+          !! nono("access non-existing",self,key)
     }
-
-    # The role to be applied if not a specific set of keys was given.
-    # This will set the allowable keys after the first initialization.
-    my role restrict-current {
-        has %!allowed;
-
-        method AT-KEY(::?CLASS:D: \key) is hidden-from-backtrace {
-            %!allowed.EXISTS-KEY(key)
-              ?? (nextsame)
-              !! nono("access non-existing",self,key)
-        }
-        method ASSIGN-KEY(::?CLASS:D: \key, \value) is hidden-from-backtrace {
-            %!allowed.EXISTS-KEY(key)
-              ?? (nextsame)
-              !! nono("create",self,key)
-        }
-        method BIND-KEY(::?CLASS:D: \key, \value) is hidden-from-backtrace {
-            %!allowed.EXISTS-KEY(key)
-              ?? (nextsame)
-              !! nono("create",self,key)
-        }
-        method STORE(
-          \to_store, :initialize(:$INITIALIZE)
-        ) is hidden-from-backtrace {
-            callsame;
-            if $INITIALIZE {
-                %!allowed = self.keys.map: * => True;
-            }
-            else {
-                if self (-) %!allowed -> $extra {
-                    self{$extra.keys}:delete;
-                    nono("store",self,$extra.keys)
-                }
-            }
-            self
-        }
+    method ASSIGN-KEY(::?CLASS:D: \key, \value) is hidden-from-backtrace {
+        %!allowed.EXISTS-KEY(key)
+          ?? (nextsame)
+          !! nono("create",self,key)
     }
-
-    # The role to be applied with a given set of keys.
-    my role restrict-given[%allowed] {
-        method AT-KEY(::?CLASS:D: \key) is hidden-from-backtrace {
-            %allowed.EXISTS-KEY(key)
-              ?? (nextsame)
-              !! nono("access non-existing",self,key)
+    method BIND-KEY(::?CLASS:D: \key, \value) is hidden-from-backtrace {
+        %!allowed.EXISTS-KEY(key)
+          ?? (nextsame)
+          !! nono("create",self,key)
+    }
+    method STORE(
+      \to_store, :initialize(:$INITIALIZE)
+    ) is hidden-from-backtrace {
+        callsame;
+        if $INITIALIZE {
+            %!allowed = self.keys.map: * => True;
         }
-        method ASSIGN-KEY(::?CLASS:D: \key, \value) is hidden-from-backtrace {
-            %allowed.EXISTS-KEY(key)
-              ?? (nextsame)
-              !! nono("create",self,key)
-        }
-        method BIND-KEY(::?CLASS:D: \key, \value) is hidden-from-backtrace {
-            %allowed.EXISTS-KEY(key)
-              ?? (nextsame)
-              !! nono("create",self,key)
-        }
-        method STORE(\to_store) is hidden-from-backtrace {
-            callsame;
-            if self (-) %allowed -> $extra {
+        else {
+            if self (-) %!allowed -> $extra {
                 self{$extra.keys}:delete;
                 nono("store",self,$extra.keys)
             }
-            self
         }
+        self
     }
+}
 
-    # Handle the "is restricted" / is restricted(Bool:D) cases
-    multi sub trait_mod:<is>(Variable:D \v, Bool:D :$restricted!) is export {
-        die "Can only apply 'is restricted' on a Map, not a {v.var.WHAT}"
-          unless v.var.WHAT ~~ Map;
-        my $name = v.var.^name;
-        if $restricted {
-            trait_mod:<does>(v, restrict-current);
-            v.var.WHAT.^set_name("$name\(restricted)");
+# The role to be applied with a given set of keys.
+my role restrict-given[%allowed] {
+    method AT-KEY(::?CLASS:D: \key) is hidden-from-backtrace {
+        %allowed.EXISTS-KEY(key)
+          ?? (nextsame)
+          !! nono("access non-existing",self,key)
+    }
+    method ASSIGN-KEY(::?CLASS:D: \key, \value) is hidden-from-backtrace {
+        %allowed.EXISTS-KEY(key)
+          ?? (nextsame)
+          !! nono("create",self,key)
+    }
+    method BIND-KEY(::?CLASS:D: \key, \value) is hidden-from-backtrace {
+        %allowed.EXISTS-KEY(key)
+          ?? (nextsame)
+          !! nono("create",self,key)
+    }
+    method STORE(\to_store) is hidden-from-backtrace {
+        callsame;
+        if self (-) %allowed -> $extra {
+            self{$extra.keys}:delete;
+            nono("store",self,$extra.keys)
         }
+        self
     }
+}
 
-    # Handle the "is restricted<a b c>" case
-    multi sub trait_mod:<is>(Variable:D \v, :@restricted!) is export {
-        die "Can only apply 'is restricted' on a Map, not a {v.var.WHAT}"
-          unless v.var.WHAT ~~ Map;
-        my %restricted = @restricted.map: * => True;
-        my $name = v.var.^name;
-        trait_mod:<does>(v, restrict-given[%restricted]);
+# Handle the "is restricted" / is restricted(Bool:D) cases
+multi sub trait_mod:<is>(Variable:D \v, Bool:D :$restricted!) is export {
+    die "Can only apply 'is restricted' on a Map, not a {v.var.WHAT}"
+      unless v.var.WHAT ~~ Map;
+    my $name = v.var.^name;
+    if $restricted {
+        trait_mod:<does>(v, restrict-current);
         v.var.WHAT.^set_name("$name\(restricted)");
     }
+}
+
+# Handle the "is restricted<a b c>" case
+multi sub trait_mod:<is>(Variable:D \v, :@restricted!) is export {
+    die "Can only apply 'is restricted' on a Map, not a {v.var.WHAT}"
+      unless v.var.WHAT ~~ Map;
+    my %restricted = @restricted.map: * => True;
+    my $name = v.var.^name;
+    trait_mod:<does>(v, restrict-given[%restricted]);
+    v.var.WHAT.^set_name("$name\(restricted)");
 }
 
 =begin pod
@@ -100,15 +97,19 @@ Hash::Restricted - trait for restricting keys in hashes
 
 =head1 SYNOPSIS
 
-  use Hash::Restricted;
+=begin code :lang<raku>
 
-  my %h is restricted = a => 42, b => 666;
-  %h<c> = 317;  # dies
+use Hash::Restricted;
 
-  my %h is restricted<a b>;
-  %h<a> = 42;
-  %h<b> = 666;
-  %h<c> = 317;  # dies
+my %h is restricted = a => 42, b => 666;
+%h<c> = 317;  # dies
+
+my %h is restricted<a b>;
+%h<a> = 42;
+%h<b> = 666;
+%h<c> = 317;  # dies
+
+=end code
 
 =head1 DESCRIPTION
 
@@ -128,9 +129,13 @@ Elizabeth Mattijsen <liz@raku.rocks>
 Source can be located at: https://github.com/lizmat/Hash-Restricted .
 Comments and Pull Requests are welcome.
 
+If you like this module, or what I’m doing more generally, committing to a
+L<small sponsorship|https://github.com/sponsors/lizmat/>  would mean a great
+deal to me!
+
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2018, 2020, 2021 Elizabeth Mattijsen
+Copyright 2018, 2020, 2021, 2024 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
